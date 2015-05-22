@@ -2,6 +2,20 @@
 
 ---
 
+#### Development
+
+```sh
+$ bin/dev
+```
+
+#### Building
+
+```sh
+$ bin/build
+```
+
+---
+
 ### Contributing
 
 1. Fork it

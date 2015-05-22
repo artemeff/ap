@@ -6,7 +6,10 @@
                  [org.clojure/clojurescript "0.0-3269"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [sablono "0.3.4"]
-                 [org.omcljs/om "0.8.8"]]
+                 [org.omcljs/om "0.8.8"]
+                 [cljs-ajax "0.3.11"]
+                 [alandipert/storage-atom "1.2.4"]
+                 [sablono "0.3.4"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-figwheel "0.3.3"]]

@@ -5,7 +5,7 @@
   <link href="css/style.css" rel="stylesheet" type="text/css">
   <link href="css/font.css" rel="stylesheet" type="text/css">
   <script>
-    var vkClientId   = 4926566;
+    var vkClientId   = 1234567;
     var redirectUrl  = 'http://localhost:3449/';
     var lastfmApiKey = '6978df4845bc3727f0a4759c67fd2743';
   </script>
