@@ -10,16 +10,18 @@
 (def screen-height
   (aget js/screen "height"))
 
-(defn params->any [delim delim-kv m]
-  (string/join delim
-               (for [[k v] m]
-                 (str (name k) delim-kv v))))
+(defn params->any
+  ([delim delim-kv m] (params->any delim delim-kv m #(%)))
+  ([delim delim-kv m fn-kv]
+   (string/join delim
+                (for [[k v] m]
+                  (str (fn-kv (name k)) delim-kv (fn-kv v))))))
 
 (defn params->ps [m]
   (params->any "," "=" m))
 
 (defn params->qs [m]
-  (params->any "&" "=" m))
+  (params->any "&" "=" m #(js/encodeURIComponent %)))
 
 (defn qs->params [str]
   (->> (string/split str #"&") 
