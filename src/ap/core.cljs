@@ -14,7 +14,7 @@
 (def default-cover-bg "/img/bg.jpg")
 
 (defn el [id]
-  (. js/document (getElementById id)))
+  (.getElementById js/document id))
 
 ;; app data
 
