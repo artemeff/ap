@@ -27,9 +27,6 @@
 
 ;; utils
 
-(defn log [obj]
-  (.log js/console obj))
-
 (defn access-token []
   (:access_token (:user @app-state)))
 
