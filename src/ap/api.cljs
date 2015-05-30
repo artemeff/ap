@@ -1,7 +1,6 @@
 (ns ap.api
-  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [ap.utils :as u]
-            [cljs.core.async :refer [<! put! chan]])
+            [goog.net.Jsonp :as jsonp])
   (:import [goog.net Jsonp]))
 
 ; http://ws.audioscrobbler.com/2.0/?method=track.getInfo&artist=cher&track=believe&format=json
@@ -14,13 +13,12 @@
 
 ;; functions
 
-(defn fetch [uri]
-  (let [out (chan)
-        req (Jsonp. uri "callback")]
-    (.send req nil #(put! out %))
-    out))
+(defn- fetch [uri success-fn error-fn]
+  (.send (Jsonp. uri) nil
+         #(success-fn (js->clj % :keywordize-keys true))
+         #(error-fn (js->clj % :keywordize-keys true))))
 
-(defn lastfm-track-uri [artist title]
+(defn- lastfm-track-uri [artist title]
   (let [params {:method  "track.getInfo"
                 :api_key lastfm-api-key
                 :artist  artist
@@ -28,11 +26,13 @@
                 :format  "json"}]
     (str lastfm-api-uri "?" (u/params->qs params))))
 
-(defn lastfm-track-handle [response]
-  (let [data  (js->clj response :keywordize-keys true)
-        track (:track data)
-        album (:album track)]
-    (u/log (last (:image album)))))
+(defn lastfm-track [artist title success-fn error-fn]
+  (fetch (lastfm-track-uri artist title) success-fn error-fn))
 
-(defn lastfm-track [artist title]
-  (go (lastfm-track-handle (<! (fetch (lastfm-track-uri artist title))))))
+(defn- vk-tracks-uri [id token]
+  (let [params {:owner_id     id
+                :access_token token}]
+    (str vk-api-uri "audio.get" "?" (u/params->qs params))))
+
+(defn vk-tracks [id token success-fn error-fn]
+  (fetch (vk-tracks-uri id token) success-fn error-fn))

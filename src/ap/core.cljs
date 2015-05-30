@@ -10,8 +10,9 @@
 
 ;; utils
 
-(def default-cover "/img/default_cover.jpg")
+(def default-cover    "/img/default_cover.jpg")
 (def default-cover-bg "/img/bg.jpg")
+(def audio-player     "audio-player")
 
 (defn el [id]
   (.getElementById js/document id))
@@ -27,17 +28,28 @@
 
 ;; utils
 
+(defn play! []
+  (.play (el audio-player)))
+
+(defn pause! []
+  (.pause (el audio-player)))
+
 (defn access-token []
   (:access_token (:user @app-state)))
 
 (defn user-id []
   (:user_id (:user @app-state)))
 
+(defn set-playlist! [tracks]
+  (swap! app-state assoc :playlist tracks))
+
 (defn set-user! [credentials]
   (swap! app-state assoc :user credentials))
 
 (defn set-current-track! [track]
-  (swap! app-state assoc :current-track track))
+  (pause!)
+  (swap! app-state assoc :current-track track)
+  (play!))
 
 (defn set-cover-as-bg! [track]
   (let [app-el (el "app")
@@ -58,6 +70,16 @@
 (defn display-track-cover [{:keys [cover] :as track}]
   (let [cur-cover (or cover default-cover)]
     [:span.cover [:img {:src cur-cover}]]))
+
+;; jsonp callbacks
+
+(defn lastfm-track-callback [{:keys [track]}]
+  (let [image (last (:image (:album track)))]
+    ))
+
+(defn vk-tracks-callback [{:keys [response error] :as data}]
+  (let [tracks (vec (rest response))]
+    (set-playlist! tracks)))
 
 ;; components
 
@@ -80,7 +102,7 @@
   (reify
     om/IRender
     (render [this]
-      (log (api/vk-tracks (user-id) (access-token)))
+      (api/lastfm-track (:artist track) (:title track) lastfm-track-callback #(u/error %))
       (set-cover-as-bg! track)
       (html [:div.current-track
              (display-track-cover track)
@@ -90,8 +112,13 @@
   (reify
     om/IRender
     (render [this]
+      ;; load user playlist
+      (api/vk-tracks (user-id) (access-token) vk-tracks-callback #(u/error %))
+      ;; render
       (html [:div#player
              [:div.counter (:counter data)]
+             [:audio {:id audio-player}
+              [:source {:src (:url (:current-track data)) :type "audio/mpeg"}]]
              (om/build playlist (:playlist data))
              (om/build current-track (:current-track data))]))))
 

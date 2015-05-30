@@ -4,6 +4,9 @@
 (defn log [obj]
   (.log js/console obj))
 
+(defn error [obj]
+  (.error js/console obj))
+
 (def screen-width
   (aget js/screen "width"))
 
